@@ -6,9 +6,9 @@ const StoreSC = new Schema({
   name: { type: String, required: true },
   location: { type: String, required: true },
   geographicalLocation: { type: String },
-  nearestStore: [StoreSC],
+  nearestStore: [{ type: Schema.Types.ObjectId, ref: "store" }],
 });
 
 const Store = model("store", StoreSC);
 
-module.exports = { Store };
+module.exports = { Store, StoreSC };

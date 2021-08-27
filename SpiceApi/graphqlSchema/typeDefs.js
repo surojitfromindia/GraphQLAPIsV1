@@ -1,41 +1,65 @@
 const { gql } = require("apollo-server");
 
 const typeDefs = gql`
-  # every item has its name
-  # quantity either in gram, kg, litter or pices.
-  # have individual store infos
+  enum Unit {
+    KG
+    GR
+    LT
+    MG
+    PC
+  }
+
   type Item {
     date: String!
     name: String!
     status: String
-    unit: String!
+    unit: Unit!
     openQuantity: Int!
-    prices: [Prices!]
+    tags: [String!]
+    prices(currency: String = "Inr", quantity: Quantity! = {}): [Prices!]
   }
 
-  # each item in store has
-  # price, date the data is collected,
-  # a Store field
+  input Quantity {
+    unit: Unit!
+    amount: Float!
+  }
+
+  input PriceInput {
+    store: StoreInput!
+    price: Int!
+    date: String!
+  }
+
+  input NewItemInput {
+    date: String!
+    name: String!
+    unit: String!
+    openQuantity: Int!
+    currency: String
+    prices: [PriceInput]
+    status: String = "open"
+  }
+
+  input StoreInput {
+    name: String!
+    location: String
+    geographicalLocation: String!
+  }
+
   type Prices {
     store: Store!
     price: Int!
     date: String!
   }
 
-  # store has name
   type Store {
-    name: String!
+    name: String
     location: String
     nearestStore: [Store]
-    # geographical location (eg. kolkata, serampore, etc.)
-    geographicalLocation: String!
+    geographicalLocation: String
   }
 
   type Query {
-    # low is lower day bound
-    # up is upper day bound (must be less than the difference between given date and current date)
-    # bound for both up and lower bound
-    # returns item
     item(
       date: String!
       name: [String!] = []
@@ -46,31 +70,13 @@ const typeDefs = gql`
       up: Int = 30
       bound: Int = 30
     ): Item!
+    show_store_info(storeid: String!): Store
   }
 
-  input StoreInput {
-    name: String!
-    location: String
-    # geographical location (eg. kolkata, serampore, etc.)
-    geographicalLocation: String!
-  }
-  input PriceInput {
-    store: StoreInput!
-    price: Int!
-    date: String!
-  }
-  input NewItemInput {
-    date: String!
-    name: String!
-    unit: String!
-    openQuantity: Int!
-    currency: String
-    prices: [PriceInput]
-    status: String = "open"
-  }
-  
   type Mutation {
-    insertNewItem(item: NewItemInput): Item
+    insertNewItem(item: NewItemInput): Item!
+    insertNewStore(store: StoreInput): Store!
+    addNearStores(addTo: String!, storeids: [String!]): Store!
   }
 `;
 

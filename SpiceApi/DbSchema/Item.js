@@ -1,4 +1,4 @@
-const { Price } = require("./Price");
+const { PriceSC } = require("./Price");
 const { model, Schema } = require("mongoose");
 
 const ItemSC = new Schema({
@@ -6,7 +6,8 @@ const ItemSC = new Schema({
   status: String,
   unit: String,
   openQuantity: Number,
-  prices: [Price],
+  tags: [String],
+  prices: [PriceSC],
 });
 
 const Item = model("item", ItemSC);

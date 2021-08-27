@@ -1,5 +1,5 @@
 const { ApolloServer, gql } = require("apollo-server");
-const  mongoose  = require("mongoose");
+const mongoose = require("mongoose");
 const { typeDefs } = require("./graphqlSchema/typeDefs");
 const { resolvers } = require("./graphqlSchema/resolvers");
 
@@ -7,7 +7,10 @@ const PORT = 5000;
 
 const main = () => {
   mongoose
-    .connect("mongodb://localhost:27017/SpiceDb")
+    .connect("mongodb://localhost:27017/SpiceDb", {
+      useUnifiedTopology: true,
+      useNewUrlParser: true,
+    })
     .then(() => {
       console.log("Database online");
       const server = new ApolloServer({ typeDefs, resolvers });

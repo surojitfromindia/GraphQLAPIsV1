@@ -1,4 +1,6 @@
 let v = [];
+const { Item } = require("../DbSchema/Item");
+const { Store } = require("../DbSchema/Store");
 
 const resolvers = {
   Query: {
@@ -10,9 +12,8 @@ const resolvers = {
         date: "2021-8-24",
         name: "Cardimon",
         status: "open",
-        unit: "kg",
         openQuantity: 1,
-        currency: "Inr",
+        unit : "KG",
         prices: [
           {
             store: {
@@ -50,13 +51,46 @@ const resolvers = {
         ],
       };
     },
+
+    show_store_info: (_, { storeid }) => {
+      return Store.findOne({ _id: storeid }).populate({
+        path: "nearestStore",
+      });
+    },
+  },
+
+  Store: {
+    async nearestStore(parent) {
+      let h = await Store.findOne(
+        { _id: parent._id },
+        { nearestStore: 1, _id: 0 }
+      ).populate({
+        path: "nearestStore",
+      });
+
+      return h.nearestStore;
+    },
   },
 
   Mutation: {
-    insertNewItem: (_, { item }, { dbc }) => {
-      v.push(item);
-      console.log(item);
-      return v[v.length - 1];
+    insertNewItem: async (_, { item }, { dbc }) => {
+      const ritem = await Item.Insert(item);
+      return ritem;
+    },
+    insertNewStore: async (_, { store }, { dbc }) => {
+      const rstore = new Store(store);
+      await rstore.save();
+      return rstore;
+    },
+
+    addNearStores: async (_, { addTo, storeids }, { dbc }) => {
+      await Store.updateOne(
+        { _id: addTo },
+        {
+          $push: { nearestStore: storeids },
+        }
+      );
+      return Store.findById(addTo);
     },
   },
 };
