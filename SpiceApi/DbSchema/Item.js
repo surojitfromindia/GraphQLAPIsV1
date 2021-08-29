@@ -4,6 +4,7 @@ const { model, Schema } = require("mongoose");
 const ItemSC = new Schema({
   name: String,
   status: String,
+  date: Date,
   unit: String,
   openQuantity: Number,
   tags: [String],

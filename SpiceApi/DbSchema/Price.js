@@ -1,10 +1,10 @@
-const { StoreSC } = require("./Store");
-const { model, Schema } = require("mongoose");
+const { StoreSC, Store } = require("./Store");
+const { model, Schema, SchemaType } = require("mongoose");
 
 const PriceSC = new Schema({
-  date: Date,
-  price: Number,
-  store: StoreSC,
+  date: { type: Date },
+  price: { type: Number },
+  store_info: { type: Schema.Types.ObjectId, ref: "store" },
 });
 
 const Price = model("price", PriceSC);

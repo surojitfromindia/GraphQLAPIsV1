@@ -4,19 +4,10 @@ const typeDefs = gql`
   enum Unit {
     KG
     GR
-    LT
+    L
+    ML
     MG
     PC
-  }
-
-  type Item {
-    date: String!
-    name: String!
-    status: String
-    unit: Unit!
-    openQuantity: Int!
-    tags: [String!]
-    prices(currency: String = "Inr", quantity: Quantity! = {}): [Prices!]
   }
 
   input Quantity {
@@ -25,7 +16,7 @@ const typeDefs = gql`
   }
 
   input PriceInput {
-    store: StoreInput!
+    storeid: String!
     price: Int!
     date: String!
   }
@@ -33,7 +24,7 @@ const typeDefs = gql`
   input NewItemInput {
     date: String!
     name: String!
-    unit: String!
+    unit: Unit!
     openQuantity: Int!
     currency: String
     prices: [PriceInput]
@@ -46,8 +37,22 @@ const typeDefs = gql`
     geographicalLocation: String!
   }
 
+  input StoreInputWithId {
+    storeId: String!
+  }
+
+  type Item {
+    date: String!
+    name: String!
+    status: String
+    unit: Unit!
+    openQuantity: Int!
+    tags: [String!]
+    prices(currency: String = "Inr", quantity: Quantity = {}): [Prices!]
+  }
+
   type Prices {
-    store: Store!
+    store_info: Store!
     price: Int!
     date: String!
   }
@@ -62,14 +67,14 @@ const typeDefs = gql`
   type Query {
     item(
       date: String!
-      name: [String!] = []
+      name: String!
       store_location: [String!] = []
       pricelow: Int
       priceup: Int
       low: Int = 30
       up: Int = 30
       bound: Int = 30
-    ): Item!
+    ): Item
     show_store_info(storeid: String!): Store
   }
 

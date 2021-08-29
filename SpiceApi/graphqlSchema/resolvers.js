@@ -1,61 +1,29 @@
-let v = [];
 const { Item } = require("../DbSchema/Item");
 const { Store } = require("../DbSchema/Store");
 
 const resolvers = {
   Query: {
-    item: (
+    item: async (
       _,
       { date, name, store_location, pricelow, priceup, low, up, bound }
     ) => {
-      return {
-        date: "2021-8-24",
-        name: "Cardimon",
-        status: "open",
-        openQuantity: 1,
-        unit : "KG",
-        prices: [
-          {
-            store: {
-              name: "Rajur dokan",
-              location: "vivekpalli, Belting bajar, 712203",
-              geographicalLocation: "Serampore, Hooghly, West Bengal",
-              nearestStore: [
-                {
-                  name: "Shaymoner dokan",
-                  location: "vivekpalli, Belting bajar, 712203",
-                  geographicalLocation: "Serampore, Hooghly, West Bengal",
-                },
-              ],
-            },
-
-            price: 12,
-            date: "2021-8-23",
-          },
-          {
-            store: {
-              name: "Shaymoner dokan",
-              location: "vivekpalli, Belting bajar, 712203",
-              geographicalLocation: "Serampore, Hooghly, West Bengal",
-              nearestStore: [
-                {
-                  name: "Rajur dokan",
-                  location: "vivekpalli, Belting bajar, 712203",
-                  geographicalLocation: "Serampore, Hooghly, West Bengal",
-                },
-              ],
-            },
-            price: 13,
-            date: "2021-8-23",
-          },
-        ],
-      };
+      const item = await Item.findOne({ date: date, name: name });
+      return item;
     },
 
     show_store_info: (_, { storeid }) => {
       return Store.findOne({ _id: storeid }).populate({
         path: "nearestStore",
       });
+    },
+  },
+
+  Item: {
+    async prices(parent) {
+      let priceArray = await Item.findOne({ _id: parent._id }).populate({
+        path: "prices.store_info",
+      });
+      return priceArray.prices;
     },
   },
 
@@ -73,17 +41,19 @@ const resolvers = {
   },
 
   Mutation: {
-    insertNewItem: async (_, { item }, { dbc }) => {
-      const ritem = await Item.Insert(item);
+    insertNewItem: async (_, { item }, {}) => {
+      const newItem = new Item(item);
+      ritem = await newItem.save();
       return ritem;
     },
-    insertNewStore: async (_, { store }, { dbc }) => {
+
+    insertNewStore: async (_, { store }, {}) => {
       const rstore = new Store(store);
       await rstore.save();
       return rstore;
     },
 
-    addNearStores: async (_, { addTo, storeids }, { dbc }) => {
+    addNearStores: async (_, { addTo, storeids }, {}) => {
       await Store.updateOne(
         { _id: addTo },
         {
